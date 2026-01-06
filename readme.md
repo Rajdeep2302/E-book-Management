@@ -1,5 +1,5 @@
 # final project
-# Proposed Formula to calculate reputaion in profile section
+# Proposed Formula to calculate reputation in profile section
 We will calculate Reputation as follows:
 
 Books Uploaded: 50 points each
