@@ -1,5 +1,6 @@
 import express from "express";
 import userRoutes from "./routes/user.routes.mjs";
+import uploadsRouter from "./routes/upload.routers.mjs";
 import { logger } from "./middleware/logger.mjs";
 
 const app = express();
@@ -17,6 +18,7 @@ app.get("/", (req, res) => {
 
 // Routes
 app.use("/api/users", userRoutes);
+app.use("/api/uploads", uploadsRouter);
 
 // 404 Handler
 app.use((req, res) => {
