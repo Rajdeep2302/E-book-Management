@@ -1,0 +1,13 @@
+{
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "driver": "PostgreSQL",
+            "name": "postgrelocal",
+            "connectString": "postgresql://postgres:Deep@2005@localhost:5432/E-Book-Management?sslmode=require",
+            "connectionTimeout": 30
+        }
+    ]
+}

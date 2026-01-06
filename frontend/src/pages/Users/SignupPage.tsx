@@ -29,7 +29,16 @@ const SignupPage = () => {
     setLoading(true);
 
     try {
-      const response = await signup({ name, email, password });
+      const response = await signup({
+        name,
+        email,
+        password,
+        phone: phone || undefined,
+        department: department || undefined,
+        institute: institute || undefined,
+        student: role === "student",
+        teacher: role === "teacher",
+      });
 
       if (response.success) {
         setSuccess("Account created! Please check your email to verify your account.");
