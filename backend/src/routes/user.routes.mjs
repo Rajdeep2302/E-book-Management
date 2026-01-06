@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { getUsers, createUser } from "../controllers/user.controller.mjs";
-import { validateName } from "../middleware/validate.mjs";
+import { validateEmail, validateName, validatePhone } from "../middleware/validate.mjs";
 
 const router = Router();
 
-router.get("/", getUsers);
+router.get("/all/", getUsers);
 
-router.post("/", validateName, createUser);
+router.post("/signup/", validateName, validateEmail, validatePhone, createUser);
 
 
 export default router;
