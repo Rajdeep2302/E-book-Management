@@ -1,12 +1,6 @@
 import express from "express";
-import cors from "cors";
-import helmet from "helmet";
-import cookieParser from "cookie-parser";
-import env from "./config/env.mjs";
-
-import authRoutes from "./routes/auth.routes.mjs";
-import usersRoutes from "./routes/users.routes.mjs";
-import { notFound, errorHandler } from "./middleware/error.middleware.mjs";
+import userRoutes from "./routes/user.routes.mjs";
+import { logger } from "./middleware/logger.mjs";
 
 const app = express();
 
@@ -28,17 +22,18 @@ app.use(cookieParser());
 
 // ===================
 // Root Route
-// ===================
-app.get('/', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'E-book Management API',
-    version: '1.0.0',
-    endpoints: {
-      health: '/api/health',
-      auth: '/api/auth',
-      users: '/api/users'
-    }
+app.get("/", (req, res) => {
+  res.status(200).send("<h1>Backend Server Running</h1>");
+});
+
+// Routes
+app.use("/api/users", userRoutes);
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route Not Found",
   });
 });
 

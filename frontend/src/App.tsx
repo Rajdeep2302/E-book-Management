@@ -11,18 +11,36 @@ import BookDetailsPage from './pages/Books/BookDetailsPage'
 import NotesPage from './pages/Notes'
 import NoteDetailsPage from './pages/Notes/NoteDetailsPage'
 import UploadResource from './pages/UploadResource'
-
-// Admin Components
-import AdminLayout from './admin/AdminLayout';
-import Dashboard from './admin/pages/Dashboard';
-import Users from './admin/pages/Users';
-import UserAccount from './admin/pages/UserAccount';
-import Books from './admin/pages/Books';
-import Notes from './admin/pages/Notes';
-import QuestionPapers from './admin/pages/QuestionPapers';
-import Profile from './admin/pages/Profile';
-
 const App = () => {
+  // Global Maintenance Check
+  const settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+  const isMaintenance = settings.maintenanceMode === true;
+  const userRole = localStorage.getItem('userRole');
+  const isAdmin = userRole === 'admin';
+
+  // Shared Toast Config
+  const toastOptions = {
+    position: "top-center" as const,
+    theme: "dark" as const,
+    autoClose: 3000,
+    transition: Zoom,
+    toastClassName: "bg-[#0a0a0a]/80 backdrop-blur-xl border border-blue-500/20 text-white rounded-2xl shadow-[0_0_20px_rgba(59,130,246,0.1)] px-4 py-3 min-h-[50px]",
+    progressClassName: "bg-linear-to-r from-blue-600 to-indigo-600 h-1",
+  };
+
+  // If maintenance is on and user isn't admin, force maintenance page on all non-admin routes
+  if (isMaintenance && !isAdmin) {
+    return (
+      <>
+        <Routes>
+          <Route path="*" element={<MaintenancePage />} />
+          <Route path="/admin" element={<AdminPanel />} />
+        </Routes>
+        <ToastContainer {...toastOptions} />
+      </>
+    );
+  }
+
   return (
     <Routes>
       <Route path="/" element={
@@ -34,27 +52,12 @@ const App = () => {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/verify-email/:token" element={<VerifyEmail />} />
+      <Route path="/profile" element={<ProfilePage />} />
       <Route path="/books" element={<BooksPage />} />
       <Route path="/books/:id" element={<BookDetailsPage />} />
       <Route path="/notes" element={<NotesPage />} />
       <Route path="/notes/:id" element={<NoteDetailsPage />} />
       <Route path="/upload" element={<UploadResource />} />
-
-      {/* Admin Routes - Protected, requires admin role */}
-      <Route path="/admin" element={
-        <ProtectedRoute requiredRole="admin">
-          <AdminLayout />
-        </ProtectedRoute>
-      }>
-        <Route index element={<Dashboard />} />
-        <Route path="users" element={<Users />} />
-        <Route path="users/:id" element={<UserAccount />} />
-        <Route path="books" element={<Books />} />
-        <Route path="notes" element={<Notes />} />
-        <Route path="question-papers" element={<QuestionPapers />} />
-        <Route path="profile" element={<Profile />} />
-      </Route>
     </Routes>
   )
 }
