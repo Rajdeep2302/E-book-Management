@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { Check, X, Eye, FileText, BookOpen, Clock, User, Tag, Filter, ArrowUpDown } from 'lucide-react';
+import { Check, Eye, Clock, Filter, ArrowUpDown } from 'lucide-react';
 
 interface Resource {
     id: string;

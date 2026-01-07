@@ -1,12 +1,63 @@
 import { useState } from "react";
-import { ArrowRight, ArrowLeft } from "lucide-react";
+import { ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { signup } from "../../services/authService";
 
 type Role = "student" | "teacher";
 
 const SignupPage = () => {
   const [role, setRole] = useState<Role>("student");
   const navigate = useNavigate();
+
+  // Form state
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [department, setDepartment] = useState("");
+  const [institute, setInstitute] = useState("");
+  const [password, setPassword] = useState("");
+
+  // UI state
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    try {
+      const response = await signup({
+        name,
+        email,
+        password,
+        phone: phone || undefined,
+        department: department || undefined,
+        institute: institute || undefined,
+        student: role === "student",
+        teacher: role === "teacher",
+      });
+
+      if (response.success) {
+        setSuccess("Account created! Please check your email to verify your account.");
+        // Clear form
+        setName("");
+        setEmail("");
+        setPhone("");
+        setDepartment("");
+        setInstitute("");
+        setPassword("");
+      } else {
+        setError(response.message || "Signup failed. Please try again.");
+      }
+    } catch (err) {
+      setError("Network error. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="w-full h-screen flex bg-black text-white selection:bg-blue-500/30 selection:text-blue-200">
@@ -72,10 +123,23 @@ const SignupPage = () => {
             </p>
           </div>
 
+          {/* Error/Success Messages */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-sm">
+              {success}
+            </div>
+          )}
+
           {/* ROLE SELECTOR - Custom Pill */}
           <div className="relative p-1 bg-[#050505] rounded-full border border-white/10 mb-8 flex">
             <div className="absolute inset-0 rounded-full border border-white/5 pointer-events-none" />
             <button
+              type="button"
               onClick={() => setRole("student")}
               className={`flex-1 py-3 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden ${role === "student" ? "text-white bg-gray-800" : "text-gray-500 hover:text-gray-300"
                 }`}
@@ -86,6 +150,7 @@ const SignupPage = () => {
               )}
             </button>
             <button
+              type="button"
               onClick={() => setRole("teacher")}
               className={`flex-1 py-3 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden ${role === "teacher" ? "text-white bg-gray-800" : "text-gray-500 hover:text-gray-300"
                 }`}
@@ -99,13 +164,16 @@ const SignupPage = () => {
 
 
           {/* INPUTS */}
-          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="group relative">
               <label className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 ml-4">Full Name</label>
               <div className="relative">
                 <input
                   type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   placeholder="Your Name"
+                  required
                   className="w-full bg-[#050505] text-white border border-gray-800 rounded-2xl px-6 py-4 outline-none focus:border-blue-500/50 focus:bg-gray-900/50 transition-all placeholder:text-gray-700 font-light"
                 />
               </div>
@@ -117,7 +185,10 @@ const SignupPage = () => {
               <div className="relative">
                 <input
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder={role === "student" ? "student@email.com" : "teacher@email.com"}
+                  required
                   className="w-full bg-[#050505] text-white border border-gray-800 rounded-2xl px-6 py-4 outline-none focus:border-blue-500/50 focus:bg-gray-900/50 transition-all placeholder:text-gray-700 font-light"
                 />
               </div>
@@ -130,6 +201,8 @@ const SignupPage = () => {
               <div className="relative">
                 <input
                   type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   placeholder="xxx-xxx-xxxx"
                   onKeyDown={(e) => {
                     const isNumber = /^[0-9]$/i.test(e.key);
@@ -146,6 +219,8 @@ const SignupPage = () => {
                 <div className="relative">
                   <input
                     type="text"
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
                     placeholder="Department name"
                     className="w-full bg-[#050505] text-white border border-gray-800 rounded-2xl px-6 py-4 outline-none focus:border-blue-500/50 focus:bg-gray-900/50 transition-all placeholder:text-gray-700 font-light"
                   />
@@ -158,6 +233,8 @@ const SignupPage = () => {
               <div className="relative">
                 <input
                   type="text"
+                  value={institute}
+                  onChange={(e) => setInstitute(e.target.value)}
                   placeholder="Your Institute Name"
                   className="w-full bg-[#050505] text-white border border-gray-800 rounded-2xl px-6 py-4 outline-none focus:border-blue-500/50 focus:bg-gray-900/50 transition-all placeholder:text-gray-700 font-light"
                 />
@@ -169,7 +246,11 @@ const SignupPage = () => {
               <div className="relative">
                 <input
                   type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
+                  required
+                  minLength={6}
                   className="w-full bg-[#050505] text-white border border-gray-800 rounded-2xl px-6 py-4 outline-none focus:border-blue-500/50 focus:bg-gray-900/50 transition-all placeholder:text-gray-700 font-light"
                 />
               </div>
@@ -178,8 +259,20 @@ const SignupPage = () => {
             {/* BUTTON WITH GEMINI BORDER */}
             <div className="relative group mt-8">
               <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-fuchsia-500 rounded-2xl opacity-25 blur transition duration-500 group-hover:opacity-100 group-hover:duration-200" />
-              <button className="relative w-full bg-black text-white py-4 rounded-xl font-semibold uppercase tracking-widest text-sm flex items-center justify-center gap-2 leading-none">
-                Create Account <ArrowRight className="w-4 h-4" />
+              <button
+                type="submit"
+                disabled={loading}
+                className="relative w-full bg-black text-white py-4 rounded-xl font-semibold uppercase tracking-widest text-sm flex items-center justify-center gap-2 leading-none disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Creating Account...
+                  </>
+                ) : (
+                  <>
+                    Create Account <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </div>
           </form>

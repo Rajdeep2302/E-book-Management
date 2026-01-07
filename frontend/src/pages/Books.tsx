@@ -8,7 +8,7 @@ import { Loader2 } from 'lucide-react';
 const generateMockBooks = (count: number) => {
   const subjects = ['Computer Science', 'Mathematics', 'Physics', 'History', 'Literature', 'Psychology', 'Business'];
   const titles = ['Introduction to Algorithms', 'Clean Code', 'The Pragmatic Programmer', 'Structure and Interpretation', 'Design Patterns', 'Artificial Intelligence', 'Calculus Early Transcendentals', 'University Physics', 'The Republic', 'Critique of Pure Reason'];
-  
+
   return Array.from({ length: count }, (_, i) => ({
     id: `book-${i}`,
     title: `${titles[i % titles.length]} - Vol ${Math.floor(i / 10) + 1}`,
@@ -32,7 +32,7 @@ const BooksPage = () => {
   // Filter States
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Categories extraction
   const categories = useMemo(() => Array.from(new Set(ALL_BOOKS.map(b => b.category))), []);
@@ -40,8 +40,8 @@ const BooksPage = () => {
   // Filter & Sort Logic
   const filteredBooks = useMemo(() => {
     let result = ALL_BOOKS.filter(book => {
-      const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            book.author.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        book.author.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === 'All' || book.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
@@ -68,7 +68,7 @@ const BooksPage = () => {
   // Load more function
   const loadMore = useCallback(() => {
     if (loading || !hasMore) return;
-    
+
     setLoading(true);
     setTimeout(() => {
       const currentLength = displayedBooks.length;
@@ -107,7 +107,7 @@ const BooksPage = () => {
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-6 py-32">
-        
+
         {/* Header Section */}
         <div className="mb-16">
           <h1 className="text-5xl font-bold mb-4 tracking-tighter">
@@ -120,62 +120,62 @@ const BooksPage = () => {
 
         {/* Controls Section (Moved to Top) */}
         <div className="flex flex-col md:flex-row gap-6 mb-12 items-start md:items-end justify-between">
-          
+
           <div className="flex-1 w-full md:max-w-2xl">
-              <BookFilter 
-                searchQuery={searchQuery} 
-                setSearchQuery={setSearchQuery} 
-                selectedCategory={selectedCategory} 
-                setSelectedCategory={setSelectedCategory} 
-                categories={categories}
-              />
+            <BookFilter
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              categories={categories}
+            />
           </div>
 
           <div className="flex items-center gap-4 w-full md:w-auto">
 
-             {/* Stats Badge */}
-             <div className="bg-blue-900/20 border border-blue-500/20 px-6 py-2 rounded-xl h-full flex flex-col justify-center min-h-[46px]">
-                <p className="text-blue-400 text-[10px] uppercase tracking-widest font-bold text-center">
-                    {filteredBooks.length} Books
-                </p>
-             </div>
+            {/* Stats Badge */}
+            <div className="bg-blue-900/20 border border-blue-500/20 px-6 py-2 rounded-xl h-full flex flex-col justify-center min-h-[46px]">
+              <p className="text-blue-400 text-[10px] uppercase tracking-widest font-bold text-center">
+                {filteredBooks.length} Books
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Main Content Area: Grid */}
         <div className="w-full">
-            
-            {/* The Grid - 2 columns on mobile, up to 4 on desktop */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+
+          {/* The Grid - 2 columns on mobile, up to 4 on desktop */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {displayedBooks.map((book) => (
-                <BookCard key={book.id} book={book} />
+              <BookCard key={book.id} book={book} />
             ))}
-            </div>
+          </div>
 
-            {/* Empty State */}
-            {!loading && displayedBooks.length === 0 && (
+          {/* Empty State */}
+          {!loading && displayedBooks.length === 0 && (
             <div className="text-center py-20 bg-[#0a0a0a] rounded-3xl border border-white/5 border-dashed">
-                <p className="text-gray-500 text-lg">No books found matching your criteria.</p>
-                <button 
-                    onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}
-                    className="mt-4 text-blue-500 hover:text-blue-400 font-bold text-sm uppercase tracking-wide"
-                >
-                    Clear Filters
-                </button>
+              <p className="text-gray-500 text-lg">No books found matching your criteria.</p>
+              <button
+                onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}
+                className="mt-4 text-blue-500 hover:text-blue-400 font-bold text-sm uppercase tracking-wide"
+              >
+                Clear Filters
+              </button>
             </div>
-            )}
+          )}
 
-            {/* Infinite Scroll Trigger */}
-            {hasMore && (
-              <div ref={observerTarget} className="mt-12 flex items-center justify-center py-8">
-                {loading && (
-                  <div className="flex items-center gap-2 text-gray-500">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span className="text-sm font-medium">Loading more books...</span>
-                  </div>
-                )}
-              </div>
-            )}
+          {/* Infinite Scroll Trigger */}
+          {hasMore && (
+            <div ref={observerTarget} className="mt-12 flex items-center justify-center py-8">
+              {loading && (
+                <div className="flex items-center gap-2 text-gray-500">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span className="text-sm font-medium">Loading more books...</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

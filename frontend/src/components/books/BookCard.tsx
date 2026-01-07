@@ -1,24 +1,24 @@
-import { Download } from 'lucide-react';
+
 import { useNavigate } from 'react-router-dom';
 
 interface BookProps {
-    id: string;
-    title: string;
-    author: string;
-    category: string;
-    rating: number;
-    imageUrl: string;
-    downloads: number;
+  id: string;
+  title: string;
+  author: string;
+  category: string;
+  rating: number;
+  imageUrl: string;
+  downloads: number;
 }
 
 const BookCard = ({ book }: { book: BookProps }) => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    return (
-        <div
-            onClick={() => navigate(`/books/${book.id}`)}
-            className="group relative bg-[#0a0a0a] border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-all duration-500 hover:-translate-y-2 cursor-pointer"
-        >
+  return (
+    <div
+      onClick={() => navigate(`/books/${book.id}`)}
+      className="group relative bg-[#0a0a0a] border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-all duration-500 hover:-translate-y-2 cursor-pointer"
+    >
 
       {/* Image Container */}
       <div className="relative aspect-[3/4] overflow-hidden">
@@ -45,7 +45,7 @@ const BookCard = ({ book }: { book: BookProps }) => {
         </p>
       </div>
     </div>
-    );
+  );
 };
 
 export default BookCard;

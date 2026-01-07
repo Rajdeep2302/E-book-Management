@@ -1,5 +1,5 @@
 import { success, fail } from "../utils/response.mjs";
-import { insertUser, getAllUsers } from "../model/user.model.mjs";
+import User from "../model/user.model.mjs";
 import createRegistrationID from "../config/registrationid.mjs";
 import { hashPassword } from "../utils/hash.mjs";
 import { sendMail } from "./mail.controller.mjs";
@@ -7,8 +7,8 @@ import { registrationMail } from "../mail/regstrationSuccesfull.mjs";
 
 export const getUsers = async (req, res, next) => {
   try {
-    const users = await getAllUsers();
-    return success(res, "Users fetched", users);
+    const users = await User.findAll({});
+    return success(res, "Users fetched", users.map(u => u.toJSON ? u.toJSON() : u));
   } catch (err) {
     next(err);
   }
@@ -36,10 +36,9 @@ export const createUser = async (req, res, next) => {
 
     const registration_id = await createRegistrationID(name);
 
-    student = student ? 1 : 0;
-    teacher = teacher ? 1 : 0;
-
-    password = await hashPassword(password);
+    // Determine role
+    let role = 'student';
+    if (teacher) role = 'teacher';
 
     const subject = "Registration Successful";
 
@@ -52,16 +51,15 @@ export const createUser = async (req, res, next) => {
     let user = null;
 
     if (successfulMail) {
-      user = await insertUser({
+      user = await User.create({
         name,
         email,
         phone,
         department,
         institute,
         password,
-        registration_id,
-        student,
-        teacher,
+        role,
+        isVerified: false
       });
     } else {
       return fail(res, "email send fail. please check the mail again.");
