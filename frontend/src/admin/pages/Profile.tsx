@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Shield, Bell, Lock, LogOut, Settings } from 'lucide-react';
+import { Mail, Shield, Bell, Lock, LogOut, Settings } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 
 const Profile = () => {

@@ -10,7 +10,8 @@ import {
     getMe,
     forgotPassword,
     resetPassword,
-    changePassword
+    changePassword,
+    deleteMe
 } from '../controllers/auth.controller.mjs';
 import { protect } from '../middleware/auth.middleware.mjs';
 
@@ -33,10 +34,11 @@ router.post('/signup', authLimiter, signup);
 router.post('/login', authLimiter, login);
 router.get('/verify-email/:token', verifyEmail);
 router.post('/forgot-password', authLimiter, forgotPassword);
-router.post('/reset-password/:token', authLimiter, resetPassword);
+router.post('/reset-password', authLimiter, resetPassword);
 
 // Protected routes
 router.get('/me', protect, getMe);
 router.post('/change-password', protect, changePassword);
+router.delete('/me', protect, deleteMe);
 
 export default router;

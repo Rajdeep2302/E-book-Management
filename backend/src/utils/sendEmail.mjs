@@ -10,38 +10,38 @@ import env from '../config/env.mjs';
  * @param {string} options.html - HTML body (optional)
  */
 export const sendEmail = async (options) => {
-    // Create transporter with SMTP settings
-    const transporter = nodemailer.createTransport({
-        host: env.SMTP_HOST,
-        port: env.SMTP_PORT,
-        auth: {
-            user: env.SMTP_USER,
-            pass: env.SMTP_PASS
-        }
-    });
+  // Create transporter with SMTP settings
+  const transporter = nodemailer.createTransport({
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    auth: {
+      user: env.SMTP_USER,
+      pass: env.SMTP_PASS
+    }
+  });
 
-    // Email options
-    const mailOptions = {
-        from: `${env.FROM_NAME} <${env.FROM_EMAIL}>`,
-        to: options.to,
-        subject: options.subject,
-        text: options.text,
-        html: options.html
-    };
+  // Email options
+  const mailOptions = {
+    from: `${env.FROM_NAME} <${env.FROM_EMAIL}>`,
+    to: options.to,
+    subject: options.subject,
+    text: options.text,
+    html: options.html
+  };
 
-    // Send email
-    const info = await transporter.sendMail(mailOptions);
+  // Send email
+  const info = await transporter.sendMail(mailOptions);
 
-    console.log(`📧 Email sent: ${info.messageId}`);
+  console.log(`📧 Email sent: ${info.messageId}`);
 
-    return info;
+  return info;
 };
 
 /**
  * Generate welcome email HTML (sent after account creation)
  */
 export const getWelcomeEmailHTML = (name, email, loginUrl) => {
-    return `
+  return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -92,7 +92,7 @@ export const getWelcomeEmailHTML = (name, email, loginUrl) => {
  * Generate password reset email HTML
  */
 export const getResetPasswordEmailHTML = (name, resetUrl) => {
-    return `
+  return `
     <!DOCTYPE html>
     <html>
     <head>

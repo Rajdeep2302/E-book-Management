@@ -172,3 +172,18 @@ export const logout = (): void => {
     localStorage.removeItem('user');
 };
 
+
+/**
+ * Delete current user account
+ */
+export const deleteAccount = async (): Promise<AuthResponse> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+    });
+    return response.json();
+};

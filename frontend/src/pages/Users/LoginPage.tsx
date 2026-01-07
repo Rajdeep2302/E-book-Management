@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { login, setToken, setUser } from "../../services/authService";
 
 const LoginPage = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
@@ -123,6 +124,7 @@ const LoginPage = () => {
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="student@university.edu"
                                     required
+                                    disabled={isLoading}
                                     className="w-full bg-[#050505] text-white border border-gray-800 rounded-2xl px-6 py-4 outline-none focus:border-blue-500/50 focus:bg-gray-900/50 transition-all placeholder:text-gray-700 font-light"
                                 />
                             </div>
@@ -141,7 +143,7 @@ const LoginPage = () => {
                                 />
                             </div>
                             <div className="flex justify-end mt-2">
-                                <button 
+                                <button
                                     onClick={() => navigate('/forgot-password')}
                                     className="text-xs text-gray-500 hover:text-white transition-colors"
                                 >

@@ -5,7 +5,8 @@
 import crypto from 'crypto';
 import User from '../model/user.model.mjs';
 import asyncHandler from '../utils/asyncHandler.mjs';
-import { sendEmail, getWelcomeEmailHTML, getResetPasswordEmailHTML } from '../utils/sendEmail.mjs';
+import { sendEmail, getWelcomeEmailHTML } from '../utils/sendEmail.mjs';
+import { otpMail } from '../mail/otpMail.mjs';
 import { AppError } from '../middleware/error.middleware.mjs';
 import env from '../config/env.mjs';
 
@@ -168,7 +169,7 @@ export const getMe = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * @desc    Forgot password - send reset email
+ * @desc    Forgot password - send OTP email
  * @route   POST /api/auth/forgot-password
  * @access  Public
  */
@@ -178,64 +179,83 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-        return next(new AppError('No account found with this email. Please sign up first.', 404));
+        return res.status(404).json({
+            success: false,
+            message: 'No account found with this email. Please sign up first.',
+            redirect: '/signup'
+        });
     }
 
-    const resetToken = user.getResetPasswordToken();
-    await user.save();
+    // Generate 4-digit OTP
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
-    const resetUrl = `${env.FRONTEND_URL}/reset-password/${resetToken}`;
+    // Store OTP in user record (will expire in 5 minutes)
+    user.otp = otp;
+    user.resetPasswordExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    await user.save();
 
     try {
         await sendEmail({
             to: user.email,
-            subject: '🔐 EduHub Password Reset Request',
-            text: `Reset your password by clicking: ${resetUrl}`,
-            html: getResetPasswordEmailHTML(user.name, resetUrl)
+            subject: '🔐 EduHub Password Reset OTP',
+            text: `Your OTP for password reset is: ${otp}. It expires in 5 minutes.`,
+            html: otpMail({ name: user.name, otp })
         });
 
         res.status(200).json({
             success: true,
-            message: 'Password reset email sent'
+            message: 'OTP sent to your email address'
         });
     } catch (error) {
-        user.resetPasswordToken = null;
+        user.otp = null;
         user.resetPasswordExpiry = null;
         await user.save();
-
+        console.error('Email error:', error);
         return next(new AppError('Email could not be sent', 500));
     }
 });
 
 /**
- * @desc    Reset password
- * @route   POST /api/auth/reset-password/:token
+ * @desc    Verify OTP and reset password
+ * @route   POST /api/auth/reset-password
  * @access  Public
  */
 export const resetPassword = asyncHandler(async (req, res, next) => {
-    const { password } = req.body;
+    const { email, otp, password } = req.body;
+
+    if (!email || !otp || !password) {
+        return next(new AppError('Email, OTP, and new password are required', 400));
+    }
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (!passwordRegex.test(password)) {
         return next(new AppError('Password must be at least 8 characters with uppercase, lowercase, and a number', 400));
     }
 
-    const hashedToken = crypto
-        .createHash('sha256')
-        .update(req.params.token)
-        .digest('hex');
-
-    const user = await User.findOne({
-        resetPasswordToken: hashedToken,
-        resetPasswordExpiry: { $gt: new Date() }
-    });
+    // Find user by email
+    const user = await User.findOne({ email });
 
     if (!user) {
-        return next(new AppError('Invalid or expired reset token', 400));
+        return next(new AppError('User not found', 404));
     }
 
+    // Check if OTP matches and hasn't expired
+    const inputOtp = String(otp).trim();
+    const storedOtp = user.otp ? String(user.otp).trim() : null;
+
+    console.log(`🔐 OTP Check - Input: "${inputOtp}", Stored: "${storedOtp}"`);
+
+    if (!storedOtp || storedOtp !== inputOtp) {
+        return next(new AppError('Invalid OTP', 400));
+    }
+
+    if (!user.resetPasswordExpiry || new Date() > new Date(user.resetPasswordExpiry)) {
+        return next(new AppError('OTP has expired. Please request a new one.', 400));
+    }
+
+    // Reset password
     user.password = password;
-    user.resetPasswordToken = null;
+    user.otp = null;
     user.resetPasswordExpiry = null;
     await user.save();
 
@@ -275,5 +295,25 @@ export const changePassword = asyncHandler(async (req, res, next) => {
     res.status(200).json({
         success: true,
         message: 'Password changed successfully!'
+    });
+});
+
+/**
+ * @desc    Delete current user
+ * @route   DELETE /api/auth/me
+ * @access  Private
+ */
+export const deleteMe = asyncHandler(async (req, res, next) => {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    await user.deleteOne();
+
+    res.status(200).json({
+        success: true,
+        message: 'Account deleted successfully'
     });
 });

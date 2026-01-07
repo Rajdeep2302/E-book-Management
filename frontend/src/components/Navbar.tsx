@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, X, BookOpen, MessageCircle, Home, FileText, User, LogIn, ArrowRight, LogOut, Shield, Mail, Loader2 } from 'lucide-react';
+import { Menu, X, BookOpen, MessageCircle, Home, FileText, User, LogIn, ArrowRight, LogOut, Shield, Mail } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -159,6 +159,17 @@ const Navbar = () => {
                         )}
 
                         <button
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            navigate('/profile');
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-blue-400 hover:bg-blue-500/10 rounded-xl transition-colors"
+                        >
+                          <User className="w-4 h-4" />
+                          My Profile
+                        </button>
+
+                        <button
                           onClick={handleLogout}
                           className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
                         >
@@ -215,6 +226,13 @@ const Navbar = () => {
                       <Shield className="w-4 h-4" /> Admin Panel
                     </button>
                   )}
+
+                  <button
+                    onClick={() => { setIsOpen(false); navigate('/profile'); }}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-500/20 text-blue-400 text-sm font-semibold"
+                  >
+                    <User className="w-4 h-4" /> My Profile
+                  </button>
 
                   <button
                     onClick={() => { setIsOpen(false); handleLogout(); }}

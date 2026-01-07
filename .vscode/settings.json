@@ -9,5 +9,6 @@
             "connectString": "postgresql://postgres:Deep@2005@localhost:5432/E-Book-Management?sslmode=require",
             "connectionTimeout": 30
         }
-    ]
+    ],
+    "postman.settings.dotenv-detection-notification-visibility": false
 }

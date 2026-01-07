@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, SlidersHorizontal, Loader2, RefreshCw } from 'lucide-react';
+import { Search, Loader2, RefreshCw } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import DataTable, { type Column } from '../components/DataTable';
 

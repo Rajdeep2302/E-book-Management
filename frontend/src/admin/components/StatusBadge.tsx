@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { CheckCircle2, XCircle, Clock, AlertCircle } from 'lucide-react';
 
 export type Status = 'accepted' | 'rejected' | 'pending' | 'unverified';

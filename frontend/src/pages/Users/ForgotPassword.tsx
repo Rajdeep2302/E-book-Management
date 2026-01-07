@@ -12,18 +12,44 @@ const ForgotPassword = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSendOtp = () => {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
+    const handleSendOtp = async () => {
         if (!email) {
             toast.error("Please enter your email address.");
             return;
         }
-        // Simulate API call
-        setIsOtpSent(true);
-        toast.success(`OTP sent to ${email}`);
+
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setIsOtpSent(true);
+                toast.success(`OTP sent to ${email}`);
+            } else {
+                toast.error(data.message || "Failed to send OTP");
+                if (data.redirect) {
+                    toast.info("Redirecting to signup page...");
+                    setTimeout(() => navigate(data.redirect), 3000);
+                }
+            }
+        } catch (error) {
+            toast.error("Failed to connect to server");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!otp) {
             toast.error("Please enter the OTP.");
             return;
@@ -41,13 +67,27 @@ const ForgotPassword = () => {
             return;
         }
 
-        // Simulate password reset success
-        toast.success("Password reset successfully! Redirecting to login...");
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp, password: newPassword })
+            });
 
-        // Wait a bit before redirecting so user sees the toast
-        setTimeout(() => {
-            navigate('/login');
-        }, 2000);
+            const data = await response.json();
+
+            if (data.success) {
+                toast.success("Password reset successfully! Redirecting to login...");
+                setTimeout(() => navigate('/login'), 2000);
+            } else {
+                toast.error(data.message || "Failed to reset password");
+            }
+        } catch (error) {
+            toast.error("Failed to connect to server");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -132,9 +172,10 @@ const ForgotPassword = () => {
                                     <button
                                         type="button"
                                         onClick={handleSendOtp}
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-500/20 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
+                                        disabled={isLoading}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-500/20 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        Send OTP
+                                        {isLoading ? 'Sending...' : 'Send OTP'}
                                     </button>
                                 )}
                                 {isOtpSent && (
@@ -209,10 +250,11 @@ const ForgotPassword = () => {
                         <div className="relative group mt-8">
                             <div className="absolute -inset-1 bg-linear-to-r from-cyan-400 to-fuchsia-500 rounded-2xl opacity-25 blur transition duration-500 group-hover:opacity-100 group-hover:duration-200" />
                             <button
-                                onClick={isOtpSent ? handleSubmit : undefined}
-                                className="relative w-full bg-black text-white py-4 rounded-xl font-semibold uppercase tracking-widest text-sm flex items-center justify-center gap-2 leading-none"
+                                onClick={isOtpSent ? handleSubmit : handleSendOtp}
+                                disabled={isLoading}
+                                className="relative w-full bg-black text-white py-4 rounded-xl font-semibold uppercase tracking-widest text-sm flex items-center justify-center gap-2 leading-none disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {isOtpSent ? "Set New Password" : "Reset Password"} <ArrowRight className="w-4 h-4" />
+                                {isLoading ? 'Processing...' : (isOtpSent ? "Set New Password" : "Send OTP")} {!isLoading && <ArrowRight className="w-4 h-4" />}
                             </button>
                         </div>
                     </form>

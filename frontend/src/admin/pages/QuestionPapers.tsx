@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ClipboardList, Search, Filter } from 'lucide-react';
+import { useState } from 'react';
+import { ClipboardList, Search } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import StatusBadge, { type Status } from '../components/StatusBadge';
 import ActionButtons from '../components/ActionButtons';
