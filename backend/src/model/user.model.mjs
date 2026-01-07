@@ -293,6 +293,21 @@ class User {
     return this;
   }
 
+  // Convert to safe JSON object (without password)
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      email: this.email,
+      role: this.role,
+      phone: this.phone,
+      department: this.department,
+      institute: this.institute,
+      isVerified: this.isVerified,
+      createdAt: this.createdAt
+    };
+  }
+
   async deleteOne() {
     await pool.query('DELETE FROM users WHERE id = $1', [this.id]);
   }

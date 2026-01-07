@@ -5,7 +5,7 @@ import GlassCard from '../components/GlassCard';
 import DataTable, { type Column } from '../components/DataTable';
 
 interface User {
-    _id: string;
+    id: number;
     name: string;
     email: string;
     role: 'student' | 'teacher' | 'admin';
@@ -154,7 +154,7 @@ const Users = () => {
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/admin/users/${user._id}`)
+                        navigate(`/admin/users/${user.id}`)
                     }}
                     className="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white transition-colors"
                 >
@@ -248,7 +248,7 @@ const Users = () => {
                         <DataTable
                             data={users}
                             columns={columns}
-                            onRowClick={(user) => navigate(`/admin/users/${user._id}`)}
+                            onRowClick={(user) => navigate(`/admin/users/${user.id}`)}
                         />
                     ) : (
                         <div className="p-12 text-center text-gray-400">
