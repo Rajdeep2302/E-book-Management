@@ -1,1 +1,32 @@
 @import "tailwindcss";
+
+/* Premium Toastify Overrides */
+.Toastify__toast {
+  padding: 0;
+  overflow: hidden;
+}
+
+.Toastify__toast-body {
+  margin: 0;
+  padding: 0;
+}
+
+.Toastify__progress-bar {
+  opacity: 1;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.Toastify__close-button {
+  padding: 1rem;
+  opacity: 0.3;
+  transition: opacity 0.3s;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1;
+}
+
+/* Custom glow for the toast itself */
+.Toastify__toast--dark {
+  background: transparent !important;
+}

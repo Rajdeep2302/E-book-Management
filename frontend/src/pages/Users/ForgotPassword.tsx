@@ -1,8 +1,7 @@
 import { ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 const ForgotPassword = () => {
     const navigate = useNavigate();
@@ -53,7 +52,6 @@ const ForgotPassword = () => {
 
     return (
         <div className="w-full h-screen flex bg-black text-white selection:bg-blue-500/30 selection:text-blue-200">
-            <ToastContainer position="top-right" theme="dark" autoClose={3000} />
 
             {/* LEFT IMAGE SECTION */}
             <div className="relative w-1/2 h-full hidden md:flex overflow-hidden">
@@ -64,9 +62,9 @@ const ForgotPassword = () => {
                     className="w-full h-full object-cover transition-transform duration-1000 md:hover:scale-105"
                 />
                 {/* Gradient Blend */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent z-20" />
-                <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-blue-600/30 to-transparent blur-3xl z-30 pointer-events-none" />
-                <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-transparent via-blue-500/50 to-transparent z-40" />
+                <div className="absolute inset-0 bg-linear-to-r from-black via-black/50 to-transparent z-20" />
+                <div className="absolute inset-y-0 right-0 w-32 bg-linear-to-l from-blue-600/30 to-transparent blur-3xl z-30 pointer-events-none" />
+                <div className="absolute inset-y-0 right-0 w-1 bg-linear-to-b from-transparent via-blue-500/50 to-transparent z-40" />
 
                 {/* Floating Quote */}
                 <div className="absolute bottom-12 left-12 max-w-lg z-30">
@@ -209,7 +207,7 @@ const ForgotPassword = () => {
 
                         {/* BUTTON WITH GEMINI BORDER */}
                         <div className="relative group mt-8">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-fuchsia-500 rounded-2xl opacity-25 blur transition duration-500 group-hover:opacity-100 group-hover:duration-200" />
+                            <div className="absolute -inset-1 bg-linear-to-r from-cyan-400 to-fuchsia-500 rounded-2xl opacity-25 blur transition duration-500 group-hover:opacity-100 group-hover:duration-200" />
                             <button
                                 onClick={isOtpSent ? handleSubmit : undefined}
                                 className="relative w-full bg-black text-white py-4 rounded-xl font-semibold uppercase tracking-widest text-sm flex items-center justify-center gap-2 leading-none"

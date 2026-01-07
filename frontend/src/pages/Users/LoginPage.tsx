@@ -1,5 +1,6 @@
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -16,9 +17,9 @@ const LoginPage = () => {
                     className="w-full h-full object-cover transition-transform duration-1000 md:hover:scale-105"
                 />
                 {/* Gradient Blend - No Glow Effect as requested */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent z-20" />
-                <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-blue-600/30 to-transparent blur-3xl z-30 pointer-events-none" />
-                <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-transparent via-blue-500/50 to-transparent z-40" />
+                <div className="absolute inset-0 bg-linear-to-r from-black via-black/50 to-transparent z-20" />
+                <div className="absolute inset-y-0 right-0 w-32 bg-linear-to-l from-blue-600/30 to-transparent blur-3xl z-30 pointer-events-none" />
+                <div className="absolute inset-y-0 right-0 w-1 bg-linear-to-b from-transparent via-blue-500/50 to-transparent z-40" />
 
                 {/* Floating Quote */}
                 <div className="absolute bottom-12 left-12 max-w-lg z-30">
@@ -89,7 +90,7 @@ const LoginPage = () => {
                                 />
                             </div>
                             <div className="flex justify-end mt-2">
-                                <button 
+                                <button
                                     onClick={() => navigate('/forgot-password')}
                                     className="text-xs text-gray-500 hover:text-white transition-colors"
                                 >
@@ -100,8 +101,26 @@ const LoginPage = () => {
 
                         {/* BUTTON WITH GEMINI BORDER */}
                         <div className="relative group mt-8">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-fuchsia-500 rounded-2xl opacity-25 blur transition duration-500 group-hover:opacity-100 group-hover:duration-200" />
-                            <button className="relative w-full bg-black text-white py-4 rounded-xl font-semibold uppercase tracking-widest text-sm flex items-center justify-center gap-2 leading-none">
+                            <div className="absolute -inset-1 bg-linear-to-r from-cyan-400 to-fuchsia-500 rounded-2xl opacity-25 blur transition duration-500 group-hover:opacity-100 group-hover:duration-200" />
+                            <button
+                                onClick={() => {
+                                    // Mock Login Logic
+                                    const email = (document.querySelector('input[type="email"]') as HTMLInputElement)?.value;
+                                    const role = email?.includes('admin') ? 'admin' : 'student';
+                                    localStorage.setItem('userRole', role);
+                                    localStorage.setItem('token', 'mock_token');
+                                    localStorage.setItem('userId', 'mock_user_123');
+
+                                    if (role === 'admin') {
+                                        toast.success("Administrator access granted. Redirecting...");
+                                        navigate('/admin');
+                                    } else {
+                                        toast.success("Logged in successfully. Welcome back!");
+                                        navigate('/');
+                                    }
+                                }}
+                                className="relative w-full bg-black text-white py-4 rounded-xl font-semibold uppercase tracking-widest text-sm flex items-center justify-center gap-2 leading-none cursor-pointer"
+                            >
                                 Sign In <ArrowRight className="w-4 h-4" />
                             </button>
                         </div>

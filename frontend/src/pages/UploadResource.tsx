@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
 import { Upload, BookOpen, FileText, X, CheckCircle } from 'lucide-react';
 
@@ -59,7 +60,7 @@ const UploadResource = () => {
 
         // Validate required fields
         if (!formData.title || !formData.author || !formData.category || !formData.file) {
-            alert('Please fill in all required fields and upload a file');
+            toast.error('Please fill in all required fields and upload a file');
             return;
         }
 
@@ -76,6 +77,7 @@ const UploadResource = () => {
 
             setUploading(false);
             setUploadSuccess(true);
+            toast.success("Resource uploaded successfully! Pending admin review.");
 
             // Reset form after 2 seconds and redirect
             setTimeout(() => {
@@ -117,8 +119,8 @@ const UploadResource = () => {
                     <button
                         onClick={() => setResourceType('book')}
                         className={`flex-1 py-4 px-6 rounded-xl border-2 transition-all duration-300 flex items-center justify-center gap-3 ${resourceType === 'book'
-                                ? 'bg-blue-500/10 border-blue-500 text-blue-400'
-                                : 'bg-[#0a0a0a] border-white/10 text-gray-400 hover:border-white/20'
+                            ? 'bg-blue-500/10 border-blue-500 text-blue-400'
+                            : 'bg-[#0a0a0a] border-white/10 text-gray-400 hover:border-white/20'
                             }`}
                     >
                         <BookOpen className="w-5 h-5" />
@@ -127,8 +129,8 @@ const UploadResource = () => {
                     <button
                         onClick={() => setResourceType('note')}
                         className={`flex-1 py-4 px-6 rounded-xl border-2 transition-all duration-300 flex items-center justify-center gap-3 ${resourceType === 'note'
-                                ? 'bg-blue-500/10 border-blue-500 text-blue-400'
-                                : 'bg-[#0a0a0a] border-white/10 text-gray-400 hover:border-white/20'
+                            ? 'bg-blue-500/10 border-blue-500 text-blue-400'
+                            : 'bg-[#0a0a0a] border-white/10 text-gray-400 hover:border-white/20'
                             }`}
                     >
                         <FileText className="w-5 h-5" />
