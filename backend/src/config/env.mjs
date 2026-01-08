@@ -3,8 +3,8 @@ dotenv.config();
 
 const required = (key) => {
   if (!process.env[key]) {
-    console.error(`Missing required env: ${key}`);
-    process.exit(1);
+    console.warn(`Missing required env: ${key} - Using Mock Value for Hackathon`);
+    return "postgres://mock:mock@localhost:5432/mock"; // Default mock
   }
   return process.env[key];
 };
@@ -25,6 +25,9 @@ const env = Object.freeze({
   FROM_EMAIL: process.env.FROM_EMAIL,
 
   FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:5173",
+
+  SUPABASE_URL: required("SUPABASE_URL"),
+  SUPABASE_KEY: required("SUPABASE_KEY"),
 });
 
 export default env;

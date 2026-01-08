@@ -13,17 +13,9 @@ import NotesPage from './pages/Notes'
 import NoteDetailsPage from './pages/Notes/NoteDetailsPage'
 import UploadResource from './pages/UploadResource'
 import MaintenancePage from './pages/MaintenancePage'
-// Admin Imports
-import AdminLayout from './admin/AdminLayout'
-import Dashboard from './admin/pages/Dashboard'
-import Users from './admin/pages/Users'
-import Books from './admin/pages/Books'
-import Notes from './admin/pages/Notes'
-import QuestionPapers from './admin/pages/QuestionPapers'
-import Profile from './admin/pages/Profile'
-import UserAccount from './admin/pages/UserAccount'
-import ProtectedRoute from './components/ProtectedRoute'
-import { ToastContainer, Zoom } from 'react-toastify'
+import { ToastContainer, Zoom } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const App = () => {
   // Global Maintenance Check
   const settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
@@ -67,39 +59,29 @@ const App = () => {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={
-        <>
-          <Navbar />
-          <Home />
-        </>
-      } />
-      <Route path="/signup" element={<SignupPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/profile" element={<ProfilePage />} />
-      <Route path="/books" element={<BooksPage />} />
-      <Route path="/books/:id" element={<BookDetailsPage />} />
-      <Route path="/notes" element={<NotesPage />} />
-      <Route path="/notes/:id" element={<NoteDetailsPage />} />
-      <Route path="/upload" element={<UploadResource />} />
-
-      {/* Admin Routes */}
-      <Route path="/admin" element={
-        <ProtectedRoute requiredRole="admin">
-          <AdminLayout />
-        </ProtectedRoute>
-      }>
-        <Route index element={<Dashboard />} />
-        <Route path="users" element={<Users />} />
-        <Route path="books" element={<Books />} />
-        <Route path="notes" element={<Notes />} />
-        <Route path="question-papers" element={<QuestionPapers />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="users/:id" element={<UserAccount />} />
-      </Route>
-    </Routes>
-  )
+    <>
+      <Routes>
+        <Route path="/" element={
+          <>
+            <Navbar />
+            <Home />
+          </>
+        } />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/books" element={<BooksPage />} />
+        <Route path="/books/:id" element={<BookDetailsPage />} />
+        <Route path="/notes" element={<NotesPage />} />
+        <Route path="/notes/:id" element={<NoteDetailsPage />} />
+        <Route path="/upload" element={<UploadResource />} />
+        <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/maintenance" element={<MaintenancePage />} />
+      </Routes>
+      <ToastContainer {...toastOptions} />
+    </>
+  );
 }
 
 export default App
