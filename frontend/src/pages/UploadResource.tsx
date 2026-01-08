@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
 import { Upload, BookOpen, FileText, X, CheckCircle } from 'lucide-react';
+import axios from 'axios';
 
 const UploadResource = () => {
     const navigate = useNavigate();
@@ -63,21 +64,43 @@ const UploadResource = () => {
             toast.error('Please fill in all required fields and upload a file');
             return;
         }
+        
+        // Size validation (10MB)
+        if (formData.file.size > 10 * 1024 * 1024) {
+             toast.error('File size exceeds 10MB limit');
+             return;
+        }
 
         setUploading(true);
 
-        // Simulate upload process (replace with actual API call)
-        setTimeout(() => {
-            console.log('Uploading:', {
-                resourceType,
-                ...formData,
-                fileName: formData.file?.name,
-                coverImageName: formData.coverImage?.name,
+        try {
+            const data = new FormData();
+            data.append('title', formData.title);
+            data.append('author', formData.author);
+            data.append('category', formData.category);
+            data.append('description', formData.description || '');
+            data.append('language', formData.language);
+            data.append('year', formData.year);
+            data.append('pages', formData.pages || '');
+            data.append('file', formData.file);
+            
+            // Note: coverImage is not yet handled by backend logic (Supabase focused on PDF per request)
+            // if (formData.coverImage) data.append('coverImage', formData.coverImage);
+
+            const token = localStorage.getItem('token');
+            // TODO: Use environment variable for API URL in production
+            const API_URL = 'http://localhost:5000/api/books/upload'; 
+
+            await axios.post(API_URL, data, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data'
+                }
             });
 
             setUploading(false);
             setUploadSuccess(true);
-            toast.success("Resource uploaded successfully! Pending admin review.");
+            toast.success("Resource uploaded successfully! Available for download immediately.");
 
             // Reset form after 2 seconds and redirect
             setTimeout(() => {
@@ -96,7 +119,13 @@ const UploadResource = () => {
                 });
                 navigate(resourceType === 'book' ? '/books' : '/notes');
             }, 2000);
-        }, 2000);
+
+        } catch (error: any) {
+            console.error(error);
+            setUploading(false);
+            const msg = error.response?.data?.message || "Upload failed. Please try again.";
+            toast.error(msg);
+        }
     };
 
     return (

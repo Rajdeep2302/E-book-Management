@@ -5,7 +5,14 @@ let pool = null;
 
 export const connectDB = async () => {
   try {
-    if (!env.DB_URL) throw new Error("DATABASE_URL not found");
+    if (!env.DB_URL) {
+        console.warn("DATABASE_URL not found - Mocking DB Connection for Demo");
+        sql = async (strings, ...values) => {
+            console.log("Mock SQL query:", strings[0]);
+            return [{}]; // Return dummy data
+        };
+        return sql;
+    }
 
     pool = new pg.Pool({ connectionString: env.DB_URL });
 
@@ -16,7 +23,9 @@ export const connectDB = async () => {
     return pool;
   } catch (err) {
     console.error("DB connection failed:", err.message);
-    process.exit(1);
+    // Don't exit for hackathon demo
+    // process.exit(1);
+    sql = async () => [];
   }
 };
 

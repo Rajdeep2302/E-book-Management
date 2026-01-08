@@ -51,7 +51,7 @@ const Navbar = () => {
     { name: 'Home', icon: <Home className="w-4 h-4" />, href: '/' },
     { name: 'Books', icon: <BookOpen className="w-4 h-4" />, href: '/books' },
     { name: 'Notes', icon: <FileText className="w-4 h-4" />, href: '/notes' },
-    { name: 'Community', icon: <MessageCircle className="w-4 h-4" />, href: '#' },
+    { name: 'Community', icon: <MessageCircle className="w-4 h-4" />, href: '/community' },
   ];
 
   return (
