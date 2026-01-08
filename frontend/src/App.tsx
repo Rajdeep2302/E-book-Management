@@ -1,12 +1,19 @@
 import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
-
+import AdminLayout from './admin/AdminLayout'
 import Home from './pages/Home'
+import AdminPanel from './pages/Admin/AdminPanel'
+import Dashboard from './admin/pages/Dashboard'
+import Books from './admin/pages/Books'
+import Notes from './admin/pages/Notes'
+import QuestionPapers from './admin/pages/QuestionPapers'
+import Users from './admin/pages/Users'
+import Profile from './admin/pages/Profile'
+import UserAccount from './admin/pages/UserAccount'
 import SignupPage from './pages/Users/SignupPage'
 import LoginPage from './pages/Users/LoginPage'
 import ProfilePage from './pages/Users/ProfilePage'
 import ForgotPassword from './pages/Users/ForgotPassword'
-
 import BooksPage from './pages/Books'
 import BookDetailsPage from './pages/Books/BookDetailsPage'
 import NotesPage from './pages/Notes'
@@ -15,6 +22,7 @@ import UploadResource from './pages/UploadResource'
 import MaintenancePage from './pages/MaintenancePage'
 import { ToastContainer, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ProtectedRoute from './components/ProtectedRoute'
 
 const App = () => {
   // Global Maintenance Check
