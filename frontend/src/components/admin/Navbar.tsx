@@ -9,7 +9,8 @@ import {
   Menu,
   X,
   ChevronRight,
-  FileText
+  FileText,
+  Home
 } from 'lucide-react';
 
 interface SidebarItemProps {
@@ -144,6 +145,12 @@ const Navbar = ({
 
           {/* Bottom Controls */}
           <div className="pt-6 border-t border-blue-500/10 space-y-2">
+            <SidebarItem
+              icon={<Home className="w-5 h-5 shrink-0" />}
+              label="Return to Home"
+              collapsed={collapsed}
+              onClick={() => navigate('/')}
+            />
             <SidebarItem
               icon={<LogOut className="w-5 h-5 shrink-0" />}
               label="Logout"

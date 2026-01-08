@@ -57,7 +57,7 @@ const SignupPage = () => {
 
       if (response.success) {
         setSuccess(
-          "Account created! Please check your email to verify your account."
+          "Your account has been created. A confirmation mail has been sent to your account."
         );
         // Clear form
         setName("");
@@ -161,11 +161,10 @@ const SignupPage = () => {
               <button
                 type="button"
                 onClick={() => setRole("student")}
-                className={`flex-1 py-3 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden ${
-                  role === "student"
+                className={`flex-1 py-3 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden ${role === "student"
                     ? "text-white bg-gray-800"
                     : "text-gray-500 hover:text-gray-300"
-                }`}
+                  }`}
               >
                 <span className="relative z-10">Student</span>
                 {role === "student" && (
@@ -175,11 +174,10 @@ const SignupPage = () => {
               <button
                 type="button"
                 onClick={() => setRole("teacher")}
-                className={`flex-1 py-3 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden ${
-                  role === "teacher"
+                className={`flex-1 py-3 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden ${role === "teacher"
                     ? "text-white bg-gray-800"
                     : "text-gray-500 hover:text-gray-300"
-                }`}
+                  }`}
               >
                 <span className="relative z-10">Teacher</span>
                 {role === "teacher" && (

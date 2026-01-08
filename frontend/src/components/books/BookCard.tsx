@@ -6,9 +6,7 @@ interface BookProps {
   title: string;
   author: string;
   category: string;
-  rating: number;
   imageUrl: string;
-  downloads: number;
 }
 
 const BookCard = ({ book }: { book: BookProps }) => {
