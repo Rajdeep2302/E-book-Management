@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import { BookOpen, Download, Heart, Share2, ArrowLeft } from 'lucide-react';
@@ -6,84 +6,84 @@ import { BookOpen, Download, Heart, Share2, ArrowLeft } from 'lucide-react';
 const BookDetailsPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [userId, setUserId] = useState<string | null>(null);
+
 
     // CENTRALIZED DATA (Ensure pdfUrl matches filenames in your /public folder)
     const booksData = [
-        { 
-            id: "1", 
-            title: "Introduction to Algorithms", 
-            author: "Thomas H. Cormen",  
+        {
+            id: "1",
+            title: "Introduction to Algorithms",
+            author: "Thomas H. Cormen",
             category: "Computer Science",
             image: "https://covers.openlibrary.org/b/id/6709987-L.jpg",
             description: "A comprehensive guide to algorithms, design, and analysis.",
             pages: 1312,
-            pdfUrl: "/Algorithms.pdf" 
+            pdfUrl: "/Algorithms.pdf"
         },
-        { 
+        {
             id: "2",
-            title: "Clean Code", 
-            author: "Robert C. Martin",  
+            title: "Clean Code",
+            author: "Robert C. Martin",
             category: "Computer Science",
             image: "https://covers.openlibrary.org/b/id/15126503-L.jpg",
             description: "A handbook of agile software craftsmanship.",
             pages: 464,
             pdfUrl: "/CleanCode.pdf"
         },
-        { 
+        {
             id: "3",
-            title: "Modern Operating Systems", 
-            author: "Andrew S. Tanenbaum", 
+            title: "Modern Operating Systems",
+            author: "Andrew S. Tanenbaum",
             category: "Computer Science",
             image: "https://covers.openlibrary.org/b/id/14418671-L.jpg",
             description: "Concepts every OS designer needs to master.",
             pages: 1136,
             pdfUrl: "/OS.pdf"
         },
-        { 
+        {
             id: "4",
-            title: "Artificial Intelligence", 
-            author: "Stuart Russell", 
+            title: "Artificial Intelligence",
+            author: "Stuart Russell",
             category: "Computer Science",
             image: "https://aima.cs.berkeley.edu/cover.jpg",
             description: "The long-anticipated revision of this best-selling text.",
             pages: 1152,
-            pdfUrl: "/Ai.pdf" 
+            pdfUrl: "/Ai.pdf"
         },
-        { 
+        {
             id: "5",
-            title: "The Pragmatic Programmer", 
-            author: "Andrew Hunt", 
+            title: "The Pragmatic Programmer",
+            author: "Andrew Hunt",
             category: "Computer Science",
             image: "https://covers.openlibrary.org/b/id/15136784-L.jpg",
             description: "Your journey to mastery in software development.",
             pages: 352,
             pdfUrl: "/Pragmatic.pdf"
         },
-        { 
+        {
             id: "6",
-            title: "Design Patterns", 
-            author: "Erich Gamma", 
+            title: "Design Patterns",
+            author: "Erich Gamma",
             category: "Computer Science",
             image: "https://covers.openlibrary.org/b/id/1754351-L.jpg",
             description: "Elements of reusable object-oriented software.",
             pages: 395,
             pdfUrl: "/DesignPatterns.pdf"
         },
-        { 
+        {
             id: "7",
-            title: "Deep Learning", 
-            author: "Ian Goodfellow", 
+            title: "Deep Learning",
+            author: "Ian Goodfellow",
             category: "Computer Science",
             image: "https://covers.openlibrary.org/b/id/8086288-L.jpg",
             description: "The definitive text on the mathematical foundations of AI.",
             pages: 800,
             pdfUrl: "/DeepLearning.pdf"
         },
-        { 
+        {
             id: "8",
-            title: "Computer Networking", 
-            author: "Andrew S. Tanenbaum", 
+            title: "Computer Networking",
+            author: "Andrew S. Tanenbaum",
             category: "Computer Science",
             image: "https://covers.openlibrary.org/b/id/8883332-L.jpg",
             description: "A top-down approach to computer networks.",
@@ -94,9 +94,7 @@ const BookDetailsPage = () => {
 
     const book = booksData.find(b => b.id === id) || booksData[0];
 
-    useEffect(() => {
-        setUserId(localStorage.getItem('userId'));
-    }, []);
+
 
     const handleReadNow = () => {
         if (book.pdfUrl && book.pdfUrl !== "#") {

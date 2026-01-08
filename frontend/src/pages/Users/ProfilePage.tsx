@@ -34,7 +34,7 @@ const ProfilePage = () => {
                         onClick={() => navigate('/')}
                         className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition"
                     >
-                        Back to Dashboard
+                        Return
                     </button>
                 </div>
 

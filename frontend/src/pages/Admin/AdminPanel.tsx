@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Navbar from '../../components/admin/Navbar'
 import ReviewResources from '../../components/admin/ReviewResources'
 import ManageResources from '../../components/admin/ManageResources'
+import ManageUsers from '../../components/admin/ManageUsers'
 import AdminSettings from '../../components/admin/AdminSettings'
 import { LayoutDashboard } from 'lucide-react'
 
@@ -93,17 +94,7 @@ const AdminPanel = () => {
                             </section>
                         )}
 
-                        {activeTab === 'users' && (
-                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                                <header className="space-y-2 mb-12">
-                                    <h1 className="text-4xl font-light text-white/90 tracking-tight">Admin <span className="font-semibold text-white">Users</span></h1>
-                                    <p className="text-white/40 font-medium">Full governance over the contributor network.</p>
-                                </header>
-                                <div className="p-24 border border-white/5 border-dashed rounded-[3rem] text-center">
-                                    <p className="text-white/20 font-bold uppercase tracking-[0.2em] text-xs">Governance matrix initializing...</p>
-                                </div>
-                            </div>
-                        )}
+                        {activeTab === 'users' && <ManageUsers />}
 
                         {activeTab === 'manage' && <ManageResources />}
                         {activeTab === 'review' && <ReviewResources />}
