@@ -1,4 +1,4 @@
-import { Star, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 
 const RecommendedBooks = () => {
@@ -33,10 +33,6 @@ const RecommendedBooks = () => {
                             </div>
                             <h3 className="font-medium text-gray-200 group-hover:text-white transition-colors truncate text-sm">{book.title}</h3>
                             <p className="text-xs text-gray-500 mt-1 mb-2">{book.author}</p>
-                            <div className="flex items-center gap-1 text-white/40 text-xs">
-                                <Star className="w-3 h-3 fill-current text-white/60" />
-                                <span>{book.rating}</span>
-                            </div>
                         </div>
                     ))}
                 </div>

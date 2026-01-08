@@ -1,34 +1,50 @@
 import { Router } from "express";
-import { uploads } from "../controllers/uploads.controller.mjs";
+import { getBooksOnly, uploads } from "../controllers/uploads.controller.mjs";
 import { upload } from "../middleware/upload.mjs";
 import createBookID from "../config/bookId.mjs";
 import fs from "fs";
 import path from "path";
+import { coverPage } from "../middleware/coverPage.mjs";
+import { protect } from "../middleware/auth.middleware.mjs";
+import { getMe } from "../controllers/auth.controller.mjs";
 
 const router = Router();
 
 router.post(
   "/upload",
-  upload.single("bookPDF"),
+  // protect,
+  // getMe,
+  upload.fields([
+    { name: "file", maxCount: 1 },
+    { name: "coverImage", maxCount: 1 },
+  ]),
+
   async (req, res, next) => {
     try {
       const { title } = req.body;
-      if (!title) return res.status(400).json({ message: "title required" });
+
+      if (!title) {
+        return res.status(400).json({ message: "title required" });
+      }
 
       const id = await createBookID(title);
       req.registration_id = id;
 
-      // REAL uploaded file path
-      const oldPath = req.file.path;
+      const pdf = req.files.file?.[0];
+      const cover = req.files.coverImage?.[0];
 
-      // rename in same dir
-      const newPath = path.join(path.dirname(oldPath), `${id}.pdf`);
+      const newPdfPath = path.join(path.dirname(pdf.path), `${id}.pdf`);
+      fs.renameSync(pdf.path, newPdfPath);
 
-      fs.renameSync(oldPath, newPath);
+      if (cover) {
+        const newCoverPath = path.join(path.dirname(cover.path), `${id}.png`);
+        fs.renameSync(cover.path, newCoverPath);
+      }
 
-      // update multer file info
-      req.file.filename = `${id}.pdf`;
-      req.file.path = newPath;
+      pdf.path = newPdfPath;
+      pdf.filename = `${id}.pdf`;
+
+      req.file = pdf;
 
       next();
     } catch (err) {
@@ -37,5 +53,7 @@ router.post(
   },
   uploads
 );
+
+router.get("/getBook", getBooksOnly)
 
 export default router;

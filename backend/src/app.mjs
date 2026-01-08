@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import env from "./config/env.mjs";
 import userRoutes from "./routes/user.routes.mjs";
+import uploadRoutes from "./routes/upload.routers.mjs";
 import authRoutes from "./routes/auth.routes.mjs";
 import usersRoutes from "./routes/users.routes.mjs";
 import { logger } from "./middleware/logger.mjs";
@@ -50,6 +51,7 @@ app.get('/api/health', (req, res) => {
 // ===================
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // ===================
 // Error Handling

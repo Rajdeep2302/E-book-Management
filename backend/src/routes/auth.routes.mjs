@@ -20,7 +20,7 @@ const router = express.Router();
 // Rate limiter for auth routes
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10,
+    max: 100,
     message: {
         success: false,
         message: 'Too many requests. Please try again after 15 minutes.'

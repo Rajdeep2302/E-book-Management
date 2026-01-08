@@ -1,29 +1,38 @@
 import { spawn } from "child_process";
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+import fs from "fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export const convertPdfToImages = (id, relativePdfPath) => {
   return new Promise((resolve, reject) => {
     
-    // 1. Resolve Absolute Paths
-    // We assume the python script is in the root of the project
-    const pythonScriptPath = path.join(process.cwd(), "src\\scripts\\pdf_converter.py");
-    
-    // The PDF path coming from Multer is usually relative or absolute. 
-    // We force it to absolute just to be sure.
+    // ✅ Python script path (bulletproof)
+    const pythonScriptPath = path.join(__dirname, "../scripts/pdf_converter.py");
+
+    // ✅ PDF Path (absolute)
     const absolutePdfPath = path.resolve(relativePdfPath);
-    
-    // Define where images go
+
+    // ✅ Output Directory
     const outputDir = path.join(process.cwd(), "src/uploads/IMAGE", id);
 
-    console.log("--- DEBUG PATHS ---");
-    console.log("Script:", pythonScriptPath);
-    console.log("PDF:", absolutePdfPath);
-    console.log("Output:", outputDir);
-    console.log("-------------------");
+    // Ensure directory exists
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
 
-    // 2. Spawn Python
-    // IMPORTANT: On some systems, you might need "python3" instead of "python"
-    const pythonProcess = spawn("python", [
+    console.log("---- PDF CONVERTER DEBUG ----");
+    console.log("Python Script:", pythonScriptPath);
+    console.log("PDF:", absolutePdfPath);
+    console.log("Output Folder:", outputDir);
+    console.log("-----------------------------");
+
+    // Pick correct python runtime
+    const pythonCmd = process.platform === "win32" ? "python" : "python3";
+
+    const pythonProcess = spawn(pythonCmd, [
       pythonScriptPath,
       absolutePdfPath,
       outputDir,
@@ -33,7 +42,6 @@ export const convertPdfToImages = (id, relativePdfPath) => {
     let dataString = "";
     let errorString = "";
 
-    // 3. Capture Output
     pythonProcess.stdout.on("data", (data) => {
       dataString += data.toString();
     });
@@ -42,22 +50,28 @@ export const convertPdfToImages = (id, relativePdfPath) => {
       errorString += data.toString();
     });
 
-    // 4. Handle Completion
     pythonProcess.on("close", (code) => {
       if (code !== 0) {
-        console.error("Python Stderr:", errorString);
-        return reject(new Error(`Python script exited with code ${code}. Error: ${errorString}`));
+        console.error("Python Error:", errorString);
+        return reject(
+          new Error(
+            `Python script exited with code ${code}. Error: ${errorString}`
+          )
+        );
       }
 
       try {
         const result = JSON.parse(dataString);
-        if (result.success) {
-          resolve(result.files.map((p) => ({ path: p })));
-        } else {
-          reject(new Error(result.error));
+
+        if (!result.success) {
+          return reject(new Error(result.error || "Python returned failure"));
         }
+
+        resolve(result.files.map((p) => ({ path: p })));
       } catch (e) {
-        reject(new Error("Failed to parse Python JSON: " + dataString));
+        reject(
+          new Error("Failed to parse Python JSON Output: " + dataString)
+        );
       }
     });
   });
