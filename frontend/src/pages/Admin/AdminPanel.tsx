@@ -3,7 +3,7 @@ import Navbar from '../../components/admin/Navbar'
 import ManageResources from '../../components/admin/ManageResources'
 import ManageUsers from '../../components/admin/ManageUsers'
 import AdminSettings from '../../components/admin/AdminSettings'
-import { LayoutDashboard, Users, BookOpen } from 'lucide-react'
+import { LayoutDashboard, Users, BookOpen, Power } from 'lucide-react'
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
@@ -128,12 +128,88 @@ const AdminPanel = () => {
                         {activeTab === 'users' && <ManageUsers />}
 
                         {activeTab === 'manage' && <ManageResources />}
-                        {/* {activeTab === 'settings' && <AdminSettings />} */}
+
+                        {/* Maintenance Mode Toggle Section - Only visible in Dashboard or Settings */}
+                        {activeTab === 'dashboard' && (
+                            <div className="mt-12 p-8 border border-red-500/20 bg-red-500/5 rounded-[2.5rem]">
+                                <MaintenanceToggle />
+                            </div>
+                        )}
                     </div>
                 </main>
             </div>
         </div>
     )
 }
+
+const MaintenanceToggle = () => {
+    const [enabled, setEnabled] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchStatus = async () => {
+            try {
+                const token = localStorage.getItem('authToken');
+                const res = await fetch(`${API_BASE_URL}/admin/maintenance`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) setEnabled(data.maintenance);
+            } catch (error) {
+                console.error("Failed to fetch maintenance status");
+            }
+        };
+        fetchStatus();
+    }, []);
+
+    const toggleMaintenance = async () => {
+        if (!window.confirm(`Are you sure you want to turn Maintenance Mode ${enabled ? 'OFF' : 'ON'}?`)) return;
+
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('authToken');
+            const res = await fetch(`${API_BASE_URL}/admin/maintenance`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ enabled: !enabled })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setEnabled(data.maintenance);
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error("Failed to toggle maintenance mode");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="flex items-center justify-between">
+            <div>
+                <h3 className="text-xl font-bold text-red-500 flex items-center gap-2">
+                    <Power className="w-5 h-5" /> Maintenance Mode
+                </h3>
+                <p className="text-white/40 text-sm mt-1">
+                    When active, only admins can log in. All other users will see a maintenance screen.
+                </p>
+            </div>
+            <button
+                onClick={toggleMaintenance}
+                disabled={loading}
+                className={`px-6 py-3 rounded-xl font-bold uppercase tracking-wider transition-all ${enabled
+                    ? 'bg-red-500 text-white hover:bg-red-600'
+                    : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white'
+                    }`}
+            >
+                {loading ? 'Updating...' : (enabled ? 'Turn OFF' : 'Turn ON')}
+            </button>
+        </div>
+    );
+};
 
 export default AdminPanel

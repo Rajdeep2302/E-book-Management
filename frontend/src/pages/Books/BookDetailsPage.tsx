@@ -80,15 +80,20 @@ const BookDetailsPage = () => {
     };
 
     const handleReadNow = () => {
-        if (!book.bookFile) {
+        if (!book.bookFile && !book.driveId) {
             alert("No file available for this book.");
             return;
         }
 
         if (isLoggedIn) {
             // Full access: Open PDF in new tab
-            const fullUrl = `${API_BASE_URL.replace('/api', '')}${book.bookFile}`;
-            window.open(fullUrl, '_blank', 'noopener,noreferrer');
+            // If driveId exists, bookFile is already the Drive URL
+            if (book.driveId) {
+                window.open(book.bookFile, '_blank', 'noopener,noreferrer');
+            } else {
+                const fullUrl = `${API_BASE_URL.replace('/api', '')}${book.bookFile}`;
+                window.open(fullUrl, '_blank', 'noopener,noreferrer');
+            }
         } else {
             // Guest access: Show Preview Modal
             setShowPreview(true);
@@ -122,7 +127,8 @@ const BookDetailsPage = () => {
 
     // Construct full URLs
     const bookCover = book.coverFile ? `${API_BASE_URL.replace('/api', '')}${book.coverFile}` : 'https://via.placeholder.com/300x400?text=No+Cover';
-    const bookPdf = book.bookFile ? `${API_BASE_URL.replace('/api', '')}${book.bookFile}` : '';
+    // If driveId exists, bookFile is already the full Drive URL
+    const bookPdf = book.driveId ? book.bookFile : (book.bookFile ? `${API_BASE_URL.replace('/api', '')}${book.bookFile}` : '');
 
     return (
         <PageTransition className="min-h-screen bg-black text-white">

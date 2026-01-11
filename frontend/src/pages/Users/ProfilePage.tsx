@@ -94,7 +94,7 @@ const ProfilePage = () => {
                     <div className="p-8 rounded-3xl bg-[#0a0a0a] border border-white/10 space-y-8 h-fit">
                         <div className="flex justify-between items-center border-b border-white/5 pb-6">
                             <h3 className="text-xl font-bold">Account Details</h3>
-                            <button className="text-xs bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white transition-colors px-4 py-1.5 rounded-full font-bold uppercase tracking-wider">Edit</button>
+                            {/* Edit button removed as requested */}
                         </div>
 
                         <div className="space-y-6">

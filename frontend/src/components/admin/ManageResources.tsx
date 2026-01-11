@@ -8,9 +8,7 @@ import {
     MoreVertical,
     BookOpen,
     FileText,
-    Download,
     Eye,
-    Settings,
     Loader2
 } from 'lucide-react';
 
@@ -236,12 +234,7 @@ const ManageResources = () => {
                                     </div>
                                 </div>
 
-                                <div className="lg:col-span-2">
-                                    <div className="flex flex-col">
-                                        <span className="text-sm font-semibold text-white/60">{resource.downloads.toLocaleString()}</span>
-                                        <span className="text-[10px] font-black uppercase tracking-[0.15em] text-white/20">Downloads</span>
-                                    </div>
-                                </div>
+                                { /* Downloads section removed */}
 
                                 <div className="lg:col-span-2 text-right">
                                     <span className="text-[10px] font-medium text-white/30">{resource.dateAdded}</span>
@@ -270,22 +263,15 @@ const ManageResources = () => {
                                         <>
                                             <div className="fixed inset-0 z-40" onClick={() => setActiveMenuId(null)} />
                                             <div className="absolute right-0 mt-2 w-48 bg-[#111] border border-white/5 rounded-2xl shadow-2xl py-2 z-50">
-                                                <button className="w-full px-4 py-3 text-left text-xs font-bold text-white/40 hover:text-white transition-all flex items-center gap-3">
+                                                <a
+                                                    href={resource.bookFile ? `${API_BASE_URL.replace('/api', '')}${resource.bookFile}` : '#'}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="w-full px-4 py-3 text-left text-xs font-bold text-white/40 hover:text-white transition-all flex items-center gap-3"
+                                                >
                                                     <Eye className="w-4 h-4 opacity-40" /> View Live
-                                                </button>
-                                                <button className="w-full px-4 py-3 text-left text-xs font-bold text-white/40 hover:text-white transition-all flex items-center gap-3">
-                                                    <Settings className="w-4 h-4 opacity-40" /> Metadata
-                                                </button>
-                                                {resource.bookFile && (
-                                                    <a
-                                                        href={`${API_BASE_URL.replace('/api', '')}${resource.bookFile}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="w-full px-4 py-3 text-left text-xs font-bold text-white/40 hover:text-white transition-all flex items-center gap-3"
-                                                    >
-                                                        <Download className="w-4 h-4 opacity-40" /> Pull File
-                                                    </a>
-                                                )}
+                                                </a>
+
                                                 <div className="mx-4 my-2 border-t border-white/3" />
                                                 <button
                                                     onClick={() => deleteResource(resource.id, resource.uploadId)}

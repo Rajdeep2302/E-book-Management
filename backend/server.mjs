@@ -12,6 +12,7 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import { sendWelcomeEmail, sendOtpEmail } from "./utils/email.mjs";
+import { uploadToDrive, getDriveViewUrl, getDrivePreviewUrl } from "./utils/googleDrive.mjs";
 
 // ==========================
 // Configuration
@@ -69,6 +70,57 @@ app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
 
+// ==========================
+// Maintenance Mode Middleware
+// ==========================
+const checkMaintenance = async (req, res, next) => {
+  try {
+    const result = await pool.query("SELECT value FROM settings WHERE key = 'maintenance_mode'");
+    const isMaintenance = result.rows.length > 0 && result.rows[0].value === 'true';
+
+    // Allow static files (uploads)
+    if (req.path.startsWith('/uploads')) {
+      return next();
+    }
+
+    // Allow specific auth routes 
+    if (req.path.startsWith('/api/auth/login') || req.path.startsWith('/api/admin/maintenance')) {
+      req.isMaintenance = isMaintenance;
+      return next();
+    }
+
+    // If maintenance is on, check if user is admin (via token)
+    if (isMaintenance) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        try {
+          const token = authHeader.split(" ")[1];
+          const decoded = jwt.verify(token, JWT_SECRET);
+          const userRes = await pool.query("SELECT role FROM users WHERE id = $1", [decoded.userId]);
+          // Assuming role 1 or 2 is admin/teacher (privileged)
+          if (userRes.rows.length > 0 && userRes.rows[0].role >= 1) {
+            return next();
+          }
+        } catch (e) {
+          // Token invalid, treat as guest
+        }
+      }
+      return res.status(503).json({
+        success: false,
+        message: "System is currently under maintenance. Please try again later.",
+        maintenance: true
+      });
+    }
+
+    next();
+  } catch (err) {
+    console.error("Maintenance check error:", err);
+    next(); // Fail open if DB error? Or fail closed? Fail open for now.
+  }
+};
+
+app.use(checkMaintenance);
+
 // Static files for uploads
 const uploadsDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadsDir)) {
@@ -91,7 +143,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB limit
   fileFilter: (req, file, cb) => {
     if (file.fieldname === "file") {
       if (file.mimetype === "application/pdf") {
@@ -232,6 +284,15 @@ app.post("/api/auth/login", async (req, res) => {
 
     if (!isMatch) {
       return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+
+    // Maintenance Mode Check
+    if (req.isMaintenance && user.role < 1) {
+      return res.status(503).json({
+        success: false,
+        message: "System is in maintenance mode. Only admins can login.",
+        maintenance: true
+      });
     }
 
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
@@ -541,20 +602,31 @@ app.post(
       }
 
       const uploadId = uuidv4();
-      const bookFile = req.files.file[0].filename;
-      const coverFile = req.files.coverImage ? req.files.coverImage[0].filename : null;
+      const localBookFile = req.files.file[0];
+      const localCoverFile = req.files.coverImage ? req.files.coverImage[0] : null;
       const isBook = isABook === "true" ? 1 : 0;
 
+      // Local storage only
+      let fullDriveId = null;
+      let bookFileValue = localBookFile.filename;
+
+      // Remove Drive upload logic
+      // Files are already saved by multer in uploadsDir
+
+      // Handle cover image (keep locally for now, or upload to Drive too)
+      const coverFile = localCoverFile ? localCoverFile.filename : null;
+
       await pool.query(
-        `INSERT INTO uploads (user_id, upload_id, title, author, description, category, language, year, document_type, book_file, cover_file, is_a_book)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-        [req.user.id, uploadId, title, author, description || null, category, language || null, year || null, documentType || null, bookFile, coverFile, isBook]
+        `INSERT INTO uploads (user_id, upload_id, title, author, description, category, language, year, document_type, book_file, cover_file, is_a_book, full_drive_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+        [req.user.id, uploadId, title, author, description || null, category, language || null, year || null, documentType || null, bookFileValue, coverFile, isBook, fullDriveId]
       );
 
       res.status(201).json({
         success: true,
         message: "Upload successful",
         uploadId,
+        driveId: fullDriveId,
       });
     } catch (err) {
       console.error("Upload error:", err);
@@ -588,21 +660,32 @@ app.get("/api/upload/getBook", async (req, res) => {
 
     const result = await pool.query(query, params);
 
-    const resources = result.rows.map((r) => ({
-      id: r.id.toString(),
-      uploadId: r.upload_id,
-      title: r.title,
-      author: r.author,
-      description: r.description,
-      category: r.category,
-      language: r.language,
-      year: r.year,
-      documentType: r.document_type,
-      bookFile: r.book_file ? `/uploads/${r.book_file}` : null,
-      coverFile: r.cover_file ? `/uploads/${r.cover_file}` : null,
-      isABook: r.is_a_book === 1,
-      createdAt: r.created_at,
-    }));
+    const resources = result.rows.map((r) => {
+      // Prioritize local file, fallback to Drive (backward compatibility)
+      let bookFileUrl = null;
+      if (r.book_file) {
+        bookFileUrl = `/uploads/${r.book_file}`;
+      } else if (r.full_drive_id) {
+        bookFileUrl = getDrivePreviewUrl(r.full_drive_id);
+      }
+
+      return {
+        id: r.id.toString(),
+        uploadId: r.upload_id,
+        title: r.title,
+        author: r.author,
+        description: r.description,
+        category: r.category,
+        language: r.language,
+        year: r.year,
+        documentType: r.document_type,
+        bookFile: bookFileUrl,
+        driveId: r.full_drive_id || null,
+        coverFile: r.cover_file ? `/uploads/${r.cover_file}` : null,
+        isABook: r.is_a_book === 1,
+        createdAt: r.created_at,
+      };
+    });
 
     res.json({ success: true, resources });
   } catch (err) {
@@ -646,6 +729,15 @@ app.get("/api/upload/:uploadId", async (req, res) => {
     }
 
     const r = result.rows[0];
+
+    // Prioritize Drive URL, fallback to local
+    let bookFileUrl = null;
+    if (r.full_drive_id) {
+      bookFileUrl = getDrivePreviewUrl(r.full_drive_id);
+    } else if (r.book_file) {
+      bookFileUrl = `/uploads/${r.book_file}`;
+    }
+
     res.json({
       success: true,
       resource: {
@@ -658,7 +750,8 @@ app.get("/api/upload/:uploadId", async (req, res) => {
         language: r.language,
         year: r.year,
         documentType: r.document_type,
-        bookFile: r.book_file ? `/uploads/${r.book_file}` : null,
+        bookFile: bookFileUrl,
+        driveId: r.full_drive_id || null,
         coverFile: r.cover_file ? `/uploads/${r.cover_file}` : null,
         isABook: r.is_a_book === 1,
         createdAt: r.created_at,
@@ -827,6 +920,37 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error("Error:", err.message);
   res.status(500).json({ success: false, message: err.message || "Server error" });
+});
+
+// ==========================
+// ADMIN MAINTENANCE ROUTES
+// ==========================
+
+// Get maintenance status
+app.get("/api/admin/maintenance", authMiddleware, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT value FROM settings WHERE key = 'maintenance_mode'");
+    const isMaintenance = result.rows.length > 0 && result.rows[0].value === 'true';
+    res.json({ success: true, maintenance: isMaintenance });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// Toggle maintenance status (Admin only)
+app.post("/api/admin/maintenance", authMiddleware, async (req, res) => {
+  try {
+    if (req.user.role < 1) {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
+    }
+
+    const { enabled } = req.body;
+    await pool.query("UPDATE settings SET value = $1 WHERE key = 'maintenance_mode'", [enabled.toString()]);
+
+    res.json({ success: true, maintenance: enabled, message: `Maintenance mode turned ${enabled ? 'ON' : 'OFF'}` });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 });
 
 // ==========================

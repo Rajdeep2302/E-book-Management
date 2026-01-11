@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import AdminPanel from './pages/Admin/AdminPanel'
@@ -13,15 +13,47 @@ import NoteDetailsPage from './pages/Notes/NoteDetailsPage'
 import UploadResource from './pages/UploadResource'
 import MaintenancePage from './pages/MaintenancePage'
 import CommunityPage from './pages/Community'
+import SearchPage from './pages/SearchPage'
 import SplashScreen from './components/SplashScreen'
 import About from './pages/About'
 import { ToastContainer, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProtectedRoute from './components/ProtectedRoute'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const App = () => {
   const [showSplash, setShowSplash] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const checkMaintenance = async () => {
+      try {
+        const res = await fetch('http://localhost:8000/api/status');
+        const data = await res.json();
+
+        if (data.maintenance) {
+          const user = JSON.parse(localStorage.getItem('user') || 'null');
+          const isAdmin = user && (user.role === 'admin' || user.role === 'teacher'); // Check role mapping
+
+          // Allow login page access for admins to login
+          if (location.pathname === '/login' || location.pathname === '/maintenance') return;
+
+          if (!isAdmin) {
+            // Avoid redirect loop
+            if (location.pathname !== '/maintenance') {
+              navigate('/maintenance');
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Status check failed", error);
+      }
+    };
+
+    // Check on mount and route change
+    checkMaintenance();
+  }, [location.pathname, navigate]);
 
   // Shared Toast Config
   const toastOptions = {
@@ -55,6 +87,7 @@ const App = () => {
           <Route path="/notes" element={<NotesPage />} />
           <Route path="/notes/:id" element={<NoteDetailsPage />} />
           <Route path="/upload" element={<UploadResource />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/about" element={
             <>

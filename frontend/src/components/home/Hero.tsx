@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Search, Book, Clock, TrendingUp, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [animateText, setAnimateText] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setAnimateText(true);
@@ -74,6 +76,12 @@ const Hero = () => {
                 type="text"
                 placeholder="Search resources..."
                 onFocus={() => setIsSearchActive(true)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    navigate(`/search?q=${e.currentTarget.value}`);
+                    setIsSearchActive(false);
+                  }
+                }}
                 className={`w-full h-[64px] pl-14 pr-12 rounded-[1.9rem]
         text-white bg-gray-900/90 border border-gray-800/50 outline-none
         transition-all duration-300 font-light placeholder:text-gray-500 text-lg

@@ -78,15 +78,20 @@ const NoteDetailsPage = () => {
     };
 
     const handleReadNow = () => {
-        if (!note.bookFile) {
+        if (!note.bookFile && !note.driveId) {
             alert("No file available for this note.");
             return;
         }
 
         if (isLoggedIn) {
             // Full access: Open PDF in new tab
-            const fullUrl = `${API_BASE_URL.replace('/api', '')}${note.bookFile}`;
-            window.open(fullUrl, '_blank', 'noopener,noreferrer');
+            // If driveId exists, bookFile is already the Drive URL
+            if (note.driveId) {
+                window.open(note.bookFile, '_blank', 'noopener,noreferrer');
+            } else {
+                const fullUrl = `${API_BASE_URL.replace('/api', '')}${note.bookFile}`;
+                window.open(fullUrl, '_blank', 'noopener,noreferrer');
+            }
         } else {
             // Guest access: Preview
             setShowPreview(true);
@@ -120,7 +125,8 @@ const NoteDetailsPage = () => {
 
     // Construct full URLs
     const noteCover = note.coverFile ? `${API_BASE_URL.replace('/api', '')}${note.coverFile}` : 'https://via.placeholder.com/300x400?text=Notes';
-    const notePdf = note.bookFile ? `${API_BASE_URL.replace('/api', '')}${note.bookFile}` : '';
+    // If driveId exists, bookFile is already the full Drive URL
+    const notePdf = note.driveId ? note.bookFile : (note.bookFile ? `${API_BASE_URL.replace('/api', '')}${note.bookFile}` : '');
 
     return (
         <PageTransition className="min-h-screen bg-black text-white">
