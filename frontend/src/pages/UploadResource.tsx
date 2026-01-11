@@ -66,9 +66,9 @@ const UploadResource = () => {
             return;
         }
 
-        // Size validation (10MB)
-        if (formData.file.size > 10 * 1024 * 1024) {
-            toast.error('File size exceeds 10MB limit');
+        // Size validation (100MB)
+        if (formData.file.size > 100 * 1024 * 1024) {
+            toast.error('File size exceeds 100MB limit');
             return;
         }
 
